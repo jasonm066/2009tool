@@ -1,0 +1,12 @@
+*.exe
+*.dll
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+key.txt
+esp_config.dat
+.claude/
+.continue/
+.mcp.json
