@@ -19,3 +19,5 @@ MCP_Server/test_mcp.py
 MCP_Server/requirements.txt
 MCP_Server/mcp_cheatengine.py
 AI_Context/AI_Guide_MCP_Server_Implementation.md
+.vscode/
+.vexp/
