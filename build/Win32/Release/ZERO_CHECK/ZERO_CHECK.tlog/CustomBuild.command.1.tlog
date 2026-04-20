@@ -1,0 +1,10 @@
+^C:\USERS\JASON\DOCUMENTS\2009TOOL\BUILD\CMAKEFILES\76083CB5D32B9F152A8F660CA7C0DF9A\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Jason/Documents/2009tool -BC:/Users/Jason/Documents/2009tool/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Jason/Documents/2009tool/build/2009tool.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

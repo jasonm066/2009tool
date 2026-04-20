@@ -5,11 +5,13 @@ the game's D3D9 backbuffer — no external window, no focus juggling.
 
 ## Build
 
-Open **x86 Native Tools Command Prompt for VS**, cd here, run:
-```
-build.bat
-```
-Outputs `internal.dll` and `injector.exe`.
+Run `build.bat` — it auto-locates the VS-bundled cmake and builds both targets.
+
+Requires:
+- Visual Studio with the **C++ workload** and **C++ CMake tools for Windows** component
+- [DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812) installed at its default path
+
+Outputs `internal.dll` and `injector.exe` in the repo root.
 
 ## Use
 
