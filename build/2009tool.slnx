@@ -9,6 +9,7 @@
 	</Configurations>
 	<Project Path="ALL_BUILD.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="3f558112-01bb-3301-a281-2b846adb562e" DefaultStartup="true">
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="dumper.vcxproj"/>
 		<BuildDependency Project="injector.vcxproj"/>
 		<BuildDependency Project="internal.vcxproj"/>
 		<Build Solution="Debug|*" Project="false"/>
@@ -17,6 +18,9 @@
 		<Build Solution="RelWithDebInfo|*" Project="false"/>
 	</Project>
 	<Project Path="ZERO_CHECK.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="7396dd3b-c1ef-3cf3-90aa-a07cdce109ec"/>
+	<Project Path="dumper.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="422a8e9d-a468-3e5b-9af4-fdf9011feb3e">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
 	<Project Path="injector.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="9ce8a802-cd1e-38e6-9111-3d641f1291ff">
 		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
 	</Project>

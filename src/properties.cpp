@@ -13,29 +13,60 @@ static int       s_decoded   = 0;
 static uint32_t  s_lastInst  = 0;
 
 // ── BrickColor name lookup ────────────────────────────────────────────────────
+// `switch` lets the compiler pick a jump table or binary-search decision tree.
 static const char* BrickColorName(int id) {
-    struct Entry { int id; const char* name; };
-    static const Entry table[] = {
-        {1,"White"},{2,"Grey"},{3,"Light yellow"},{5,"Brick yellow"},
-        {6,"Light green"},{9,"Light reddish violet"},{11,"Pastel Blue"},
-        {12,"Light orange brown"},{18,"Nougat"},{21,"Bright red"},
-        {22,"Med. reddish violet"},{23,"Bright blue"},{24,"Yellow"},
-        {25,"Earth orange"},{26,"Black"},{27,"Dark grey"},{28,"Dark green"},
-        {29,"Med. stone grey"},{36,"Br. yel. orange"},{37,"Bright green"},
-        {38,"Dark orange"},{40,"Sand blue"},{41,"Sand violet"},{42,"Peach"},
-        {43,"Cobalt"},{44,"Slime green"},{45,"Smoky grey"},{47,"Gold"},
-        {48,"Dark curry"},{49,"Fire yellow"},{50,"Flame yel. orange"},
-        {100,"Light orange"},{101,"Bright orange"},{102,"Bright bl.-green"},
-        {103,"Earth yellow"},{104,"Bright violet"},{106,"Br. orange"},
-        {107,"Bright bl. green"},{119,"Lime green"},{120,"Lt. yel. green"},
-        {125,"Light orange"},{151,"Sand green"},{192,"Reddish brown"},
-        {194,"Med. stone grey"},{195,"Smoky grey"},{199,"Dark blue"},
-        {208,"Dark yellow"},{217,"Sand orange"},{226,"Cool yellow"},
-        {0, nullptr}
-    };
-    for (const Entry* e = table; e->name; e++)
-        if (e->id == id) return e->name;
-    return nullptr;
+    switch (id) {
+        case 1:   return "White";
+        case 2:   return "Grey";
+        case 3:   return "Light yellow";
+        case 5:   return "Brick yellow";
+        case 6:   return "Light green";
+        case 9:   return "Light reddish violet";
+        case 11:  return "Pastel Blue";
+        case 12:  return "Light orange brown";
+        case 18:  return "Nougat";
+        case 21:  return "Bright red";
+        case 22:  return "Med. reddish violet";
+        case 23:  return "Bright blue";
+        case 24:  return "Yellow";
+        case 25:  return "Earth orange";
+        case 26:  return "Black";
+        case 27:  return "Dark grey";
+        case 28:  return "Dark green";
+        case 29:  return "Med. stone grey";
+        case 36:  return "Br. yel. orange";
+        case 37:  return "Bright green";
+        case 38:  return "Dark orange";
+        case 40:  return "Sand blue";
+        case 41:  return "Sand violet";
+        case 42:  return "Peach";
+        case 43:  return "Cobalt";
+        case 44:  return "Slime green";
+        case 45:  return "Smoky grey";
+        case 47:  return "Gold";
+        case 48:  return "Dark curry";
+        case 49:  return "Fire yellow";
+        case 50:  return "Flame yel. orange";
+        case 100: return "Light orange";
+        case 101: return "Bright orange";
+        case 102: return "Bright bl.-green";
+        case 103: return "Earth yellow";
+        case 104: return "Bright violet";
+        case 106: return "Br. orange";
+        case 107: return "Bright bl. green";
+        case 119: return "Lime green";
+        case 120: return "Lt. yel. green";
+        case 125: return "Light orange";
+        case 151: return "Sand green";
+        case 192: return "Reddish brown";
+        case 194: return "Med. stone grey";
+        case 195: return "Smoky grey";
+        case 199: return "Dark blue";
+        case 208: return "Dark yellow";
+        case 217: return "Sand orange";
+        case 226: return "Cool yellow";
+        default:  return nullptr;
+    }
 }
 
 // ── Value reader ─────────────────────────────────────────────────────────────
@@ -51,8 +82,7 @@ static const char* ReadValue(uint32_t inst, const PropEntry& e, char* buf, size_
         }
         case PK_INT32: {
             int32_t v = *reinterpret_cast<int32_t*>(inst + e.offset);
-            // Show BrickColor / TeamColor by name when possible
-            if (strstr(e.name, "Color") || strstr(e.name, "colour")) {
+            if (e.flags & PF_COLORNAME) {
                 const char* nm = BrickColorName(v);
                 if (nm) snprintf(buf, sz, "%s (%d)", nm, v);
                 else    snprintf(buf, sz, "BrickColor (%d)", v);
@@ -63,13 +93,11 @@ static const char* ReadValue(uint32_t inst, const PropEntry& e, char* buf, size_
         }
         case PK_BOOL: {
             uint8_t v = *reinterpret_cast<uint8_t*>(inst + e.offset);
-            snprintf(buf, sz, "%s", v ? "true" : "false");
-            break;
+            return v ? "true" : "false";
         }
         case PK_BITFIELD_BOOL: {
             uint8_t v = *reinterpret_cast<uint8_t*>(inst + e.offset);
-            snprintf(buf, sz, "%s", (v & e.offset2) ? "true" : "false");
-            break;
+            return (v & e.offset2) ? "true" : "false";
         }
         case PK_VECTOR3: {
             float* v = reinterpret_cast<float*>(inst + e.offset);
@@ -80,54 +108,44 @@ static const char* ReadValue(uint32_t inst, const PropEntry& e, char* buf, size_
             ReadStdString(inst + e.offset, buf, sz);
             break;
         case PK_CONST_BOOL:
-            snprintf(buf, sz, "%s", e.offset ? "true" : "false");
-            break;
+            return e.offset ? "true" : "false";
 
         case PK_INDIRECT_FLOAT: {
             uintptr_t ptr = *reinterpret_cast<uintptr_t*>(inst + e.offset);
-            if (!ptr) { snprintf(buf, sz, "nil"); break; }
+            if (!ptr) return "nil";
             float v = *reinterpret_cast<float*>(ptr + e.offset2);
             snprintf(buf, sz, "%.4g", v);
             break;
         }
         case PK_INDIRECT_INT32: {
             uintptr_t ptr = *reinterpret_cast<uintptr_t*>(inst + e.offset);
-            if (!ptr) { snprintf(buf, sz, "nil"); break; }
+            if (!ptr) return "nil";
             int32_t v = *reinterpret_cast<int32_t*>(ptr + e.offset2);
             snprintf(buf, sz, "%d", v);
             break;
         }
         case PK_INDIRECT_BOOL: {
             uintptr_t ptr = *reinterpret_cast<uintptr_t*>(inst + e.offset);
-            if (!ptr) { snprintf(buf, sz, "nil"); break; }
+            if (!ptr) return "nil";
             uint8_t v = *reinterpret_cast<uint8_t*>(ptr + e.offset2);
-            snprintf(buf, sz, "%s", v ? "true" : "false");
-            break;
+            return v ? "true" : "false";
         }
         case PK_INDIRECT_VECTOR3: {
             uintptr_t ptr = *reinterpret_cast<uintptr_t*>(inst + e.offset);
-            if (!ptr) { snprintf(buf, sz, "nil"); break; }
+            if (!ptr) return "nil";
             float* v = reinterpret_cast<float*>(ptr + e.offset2);
             snprintf(buf, sz, "%.3g, %.3g, %.3g", v[0], v[1], v[2]);
             break;
         }
 
-        case PK_DEREF_VECTOR3: {
-            // body = *(inst+off1), vecPtr = *(body+off2), Vec3 at vecPtr+4
-            uintptr_t body = *reinterpret_cast<uintptr_t*>(inst + e.offset);
-            if (!body) { snprintf(buf, sz, "nil"); break; }
-            uintptr_t vecPtr = *reinterpret_cast<uintptr_t*>(body + e.offset2);
-            if (!vecPtr) { snprintf(buf, sz, "nil"); break; }
-            float* v = reinterpret_cast<float*>(vecPtr + 4);
-            snprintf(buf, sz, "%.3g, %.3g, %.3g", v[0], v[1], v[2]);
-            break;
-        }
+        case PK_DEREF_VECTOR3:
         case PK_DEREF_VECTOR3_P4: {
-            // Same chain, FPU copy variant — also starts at vecPtr+4
+            // body = *(inst+off1), vecPtr = *(body+off2), Vec3 at vecPtr+4.
+            // P4 is the FPU-copy variant of the same chain — identical read path.
             uintptr_t body = *reinterpret_cast<uintptr_t*>(inst + e.offset);
-            if (!body) { snprintf(buf, sz, "nil"); break; }
+            if (!body) return "nil";
             uintptr_t vecPtr = *reinterpret_cast<uintptr_t*>(body + e.offset2);
-            if (!vecPtr) { snprintf(buf, sz, "nil"); break; }
+            if (!vecPtr) return "nil";
             float* v = reinterpret_cast<float*>(vecPtr + 4);
             snprintf(buf, sz, "%.3g, %.3g, %.3g", v[0], v[1], v[2]);
             break;
@@ -136,28 +154,16 @@ static const char* ReadValue(uint32_t inst, const PropEntry& e, char* buf, size_
         case PK_POSITION: {
             // World position via the known prim chain: *(*(inst+0x24)+0x164)
             uintptr_t prim = *reinterpret_cast<uintptr_t*>(inst + 0x24);
-            if (!prim) { snprintf(buf, sz, "nil"); break; }
+            if (!prim) return "nil";
             float* v = reinterpret_cast<float*>(prim + 0x164);
             snprintf(buf, sz, "%.3g, %.3g, %.3g", v[0], v[1], v[2]);
             break;
         }
 
-        case PK_VTABLE_RELAY: {
-            // Read the real function from the instance's vtable at the stored slot offset,
-            // decode it, then read the value — one level only (no relay-of-relay).
-            uintptr_t vtbl = *reinterpret_cast<uintptr_t*>(inst);
-            if (!vtbl) break;
-            uintptr_t fn = *reinterpret_cast<uintptr_t*>(vtbl + e.offset);
-            if (!fn) break;
-            PropEntry relay = e;
-            relay.kind    = PK_UNKNOWN;
-            relay.offset  = 0;
-            relay.offset2 = 0;
-            if (!DecodePropGetter(fn, relay.kind, relay.offset, relay.offset2)) break;
-            if (relay.kind == PK_VTABLE_RELAY) break; // refuse to chain
-            ReadValue(inst, relay, buf, sz);
+        case PK_VTABLE_RELAY:
+            // Relays are resolved once per instance-change in Draw() and rewritten to
+            // their real kind, so this branch only fires if resolution failed.
             break;
-        }
 
         default:
             break;
@@ -179,8 +185,26 @@ void Draw(uint32_t inst) {
         s_lastInst  = inst;
         s_propCount = EnumerateProperties(inst, s_props, 256);
         s_decoded   = 0;
-        for (int i = 0; i < s_propCount; i++)
-            if (s_props[i].kind != PK_UNKNOWN) s_decoded++;
+        // One-shot per-instance work: resolve vtable relays via the live vtable, and
+        // pre-flag int32 props whose name signals BrickColor lookup. Avoids redoing
+        // either of these on every frame inside ReadValue.
+        uintptr_t vtbl = SafeDeref<uintptr_t>(inst, 0);
+        for (int i = 0; i < s_propCount; i++) {
+            PropEntry& pe = s_props[i];
+            if (pe.kind == PK_VTABLE_RELAY && vtbl) {
+                uintptr_t fn = SafeDeref<uintptr_t>(vtbl + pe.offset, 0);
+                uint8_t kind = PK_UNKNOWN; uint32_t o1 = 0, o2 = 0;
+                if (fn && DecodePropGetter(fn, kind, o1, o2) && kind != PK_VTABLE_RELAY) {
+                    pe.kind = kind; pe.offset = o1; pe.offset2 = o2;
+                } else {
+                    pe.kind = PK_UNKNOWN;
+                }
+            }
+            if (pe.kind == PK_INT32 &&
+                (strstr(pe.name, "Color") || strstr(pe.name, "colour")))
+                pe.flags |= PF_COLORNAME;
+            if (pe.kind != PK_UNKNOWN) s_decoded++;
+        }
         if (!ReadClassName(inst, s_className, sizeof(s_className)))
             snprintf(s_className, sizeof(s_className), "Instance");
     }

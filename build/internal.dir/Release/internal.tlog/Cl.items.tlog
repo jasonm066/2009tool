@@ -4,6 +4,7 @@ C:\Users\Jason\Documents\2009tool\src\esp.cpp;C:\Users\Jason\Documents\2009tool\
 C:\Users\Jason\Documents\2009tool\src\menu.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\menu.obj
 C:\Users\Jason\Documents\2009tool\src\executor.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\executor.obj
 C:\Users\Jason\Documents\2009tool\src\explorer.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\explorer.obj
+C:\Users\Jason\Documents\2009tool\src\properties.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\properties.obj
 C:\Users\Jason\Documents\2009tool\vendor\TextEditor.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\TextEditor.obj
 C:\Users\Jason\Documents\2009tool\vendor\imgui\imgui.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\imgui.obj
 C:\Users\Jason\Documents\2009tool\vendor\imgui\imgui_draw.cpp;C:\Users\Jason\Documents\2009tool\build\internal.dir\Release\imgui_draw.obj

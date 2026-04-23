@@ -19,6 +19,9 @@
     <ClCompile Include="C:\Users\Jason\Documents\2009tool\src\explorer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Jason\Documents\2009tool\src\properties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Jason\Documents\2009tool\vendor\TextEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

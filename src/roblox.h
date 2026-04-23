@@ -214,10 +214,16 @@ enum PropKind : uint8_t {
     PK_VTABLE_RELAY,      // vtable dispatch: offset=slot_byte; resolved to real kind at read-time
 };
 
+enum PropFlags : uint8_t {
+    PF_NONE      = 0,
+    PF_COLORNAME = 1 << 0, // int32 value renders via BrickColorName()
+};
+
 struct PropEntry {
     char     name[48];
     char     category[24];
     uint8_t  kind;
+    uint8_t  flags;
     uint32_t offset;
     uint32_t offset2;
 };

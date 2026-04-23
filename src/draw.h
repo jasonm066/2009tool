@@ -55,8 +55,13 @@ inline void DrawTriangleFilled(float x1, float y1, float x2, float y2,
     Overlay()->AddTriangleFilled({x1, y1}, {x2, y2}, {x3, y3}, ToU32(c));
 }
 
-inline bool WorldToScreen(const Camera& cam, const Vec3& w, int sw, int sh,
-                          float& sx, float& sy) {
+inline float FocalLength(float fov, int sh) {
+    return (sh * 0.5f) / tanf(fov * 0.5f);
+}
+
+// `focal` should be precomputed once per frame via FocalLength().
+inline bool WorldToScreen(const Camera& cam, float focal, const Vec3& w,
+                          int sw, int sh, float& sx, float& sy) {
     float dx = w.x - cam.pos.x;
     float dy = w.y - cam.pos.y;
     float dz = w.z - cam.pos.z;
@@ -64,8 +69,8 @@ inline bool WorldToScreen(const Camera& cam, const Vec3& w, int sw, int sh,
     float ly = cam.rot[1] * dx + cam.rot[4] * dy + cam.rot[7] * dz;
     float lz = cam.rot[2] * dx + cam.rot[5] * dy + cam.rot[8] * dz;
     if (lz >= 0.f) return false;
-    float focal = (sh * 0.5f) / tanf(cam.fov * 0.5f);
-    sx = (lx / -lz) * focal + sw * 0.5f;
-    sy = (-ly / -lz) * focal + sh * 0.5f;
+    float inv = focal / -lz;
+    sx =  lx * inv + sw * 0.5f;
+    sy = -ly * inv + sh * 0.5f;
     return true;
 }

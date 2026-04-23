@@ -411,17 +411,23 @@ static void UpdateOsCursorVisibility(bool menuOpen) {
     }
 }
 
+static int s_cachedSw = 0, s_cachedSh = 0;
+
 static HRESULT WINAPI HookedEndScene(IDirect3DDevice9* dev) {
     InitImGuiOnce(dev);
     executor::Tick();
 
-    int sw = 0, sh = 0;
-    IDirect3DSurface9* bb = nullptr;
-    if (SUCCEEDED(dev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &bb)) && bb) {
-        D3DSURFACE_DESC desc; bb->GetDesc(&desc);
-        sw = (int)desc.Width; sh = (int)desc.Height;
-        bb->Release();
+    // Backbuffer size only changes across Reset (which we hook); no need to
+    // walk the COM chain every frame.
+    if (!s_cachedSw || !s_cachedSh) {
+        IDirect3DSurface9* bb = nullptr;
+        if (SUCCEEDED(dev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &bb)) && bb) {
+            D3DSURFACE_DESC desc; bb->GetDesc(&desc);
+            s_cachedSw = (int)desc.Width; s_cachedSh = (int)desc.Height;
+            bb->Release();
+        }
     }
+    int sw = s_cachedSw, sh = s_cachedSh;
 
     HandleToggleKey();
     UpdateOsCursorVisibility(g_cfg.showMenu);
@@ -449,6 +455,7 @@ static HRESULT WINAPI HookedEndScene(IDirect3DDevice9* dev) {
 
 static HRESULT WINAPI HookedReset(IDirect3DDevice9* dev, D3DPRESENT_PARAMETERS* pp) {
     if (imguiReady) ImGui_ImplDX9_InvalidateDeviceObjects();
+    s_cachedSw = s_cachedSh = 0; // force re-query on next EndScene
     HRESULT hr = origReset(dev, pp);
     if (imguiReady && SUCCEEDED(hr)) ImGui_ImplDX9_CreateDeviceObjects();
     return hr;
